@@ -1,0 +1,23 @@
+{
+  "name": "@monorepo/eslint-config",
+  "private": true,
+  "version": "0.3.0",
+  "type": "module",
+  "exports": {
+    "./base": "./base.js"
+  },
+  "scripts": {
+    "clean": "git clean -xdf node_modules",
+    "format:check": "prettier --check . --ignore-path ../../.gitignore",
+    "format": "prettier --write . --ignore-path ../../.gitignore",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.15.0",
+    "@monorepo/prettier-config": "workspace:^",
+    "eslint": "^9.15.0",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.15.0"
+  },
+  "prettier": "@monorepo/prettier-config"
+}
