@@ -7,12 +7,12 @@ export default defineConfig([
     entry: ['src/lib.ts'],
     format: ['cjs', 'esm'],
     target: 'esnext',
-    outDir: 'dist'
+    outDir: 'dist',
   },
   {
     entry: ['src/cli.ts'],
     format: ['esm'],
     target: 'esnext',
-    outDir: 'dist'
-  }
+    outDir: 'dist',
+  },
 ]);

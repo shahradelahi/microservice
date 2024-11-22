@@ -8,7 +8,7 @@ export type Content = {
   path: string;
 };
 
-export async function readDirectory(directoryPath: string): Promise<SafeReturn<Content[]>> {
+export async function readDirectory(directoryPath: string): Promise {
   return trySafe(async (resolve) => {
     const fileNames = await promises.readdir(directoryPath); // returns a JS array of just short/local file-names, not paths.
     const filePaths = fileNames.map((fn) => path.join(directoryPath, fn));
@@ -27,7 +27,7 @@ export async function readDirectory(directoryPath: string): Promise<SafeReturn<C
   });
 }
 
-export async function readDirectoryFiles(directoryPath: string): Promise<SafeReturn<string[]>> {
+export async function readDirectoryFiles(directoryPath: string): Promise {
   return trySafe(async (resolve, reject) => {
     const contents = await readDirectory(directoryPath);
     if (contents.error) {

@@ -28,10 +28,10 @@ export const build = new Command()
     try {
       const options = z
         .object({
-          cwd: z.string().default(process.cwd())
+          cwd: z.string().default(process.cwd()),
         })
         .parse({
-          ...opts
+          ...opts,
         });
 
       const startTime = new Date().getTime();
@@ -61,7 +61,7 @@ export const build = new Command()
         outdir: buildDir,
         format,
         minify: true,
-        sourcemap: false
+        sourcemap: false,
       });
 
       if (error) {

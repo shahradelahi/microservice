@@ -28,7 +28,7 @@ export const add = new Command()
         .object({
           name: z.string(),
           interval: z.string().default('* * * * *'),
-          cwd: z.string().default(process.cwd())
+          cwd: z.string().default(process.cwd()),
         })
         .parse({ name, ...opts });
 

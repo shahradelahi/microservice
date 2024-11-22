@@ -18,10 +18,10 @@ const devOptions = z.object({
   cwd: z.string().default(process.cwd()),
   services: z.array(z.string()).default([]),
   runOnce: z.boolean().default(false),
-  onceNow: z.boolean().default(false)
+  onceNow: z.boolean().default(false),
 });
 
-type DevOptions = z.infer<typeof devOptions>;
+type DevOptions = z.infer;
 
 export const dev = new Command()
   .command('dev')
@@ -41,7 +41,7 @@ export const dev = new Command()
     try {
       const options = devOptions.parse({
         ...opts,
-        services
+        services,
       });
 
       const { NODE_ENV } = process.env;
@@ -55,7 +55,7 @@ export const dev = new Command()
       const progress = ora('Compiling services.').start();
       const handlers: Service[] = await getHandlers({
         cwd: options.cwd,
-        services: options.services
+        services: options.services,
       });
 
       if (handlers.length === 0) {
@@ -80,13 +80,13 @@ export const dev = new Command()
       await runJobs({
         services: handlers,
         timeZone: options.timeZone,
-        once: isOneTime
+        once: isOneTime,
       });
 
       if (!isOneTime) {
         watch(['services/**/*.{ts,js}', 'src/services/**/*.{ts,js}'], {
           cwd: options.cwd,
-          ignoreInitial: true
+          ignoreInitial: true,
         }).on('all', (eventName) => {
           if (eventName === 'add' || eventName === 'unlink' || eventName === 'change') {
             handleOnChange(options);
@@ -135,14 +135,14 @@ const handleOnChange = debounce(async (options: DevOptions) => {
     const handler = await getHandlers({
       cwd: options.cwd,
       services: options.services,
-      failOnError: false
+      failOnError: false,
     });
 
     ON_CHANGE_PROGRESS.start('Reloading services.');
     await runJobs({
       services: handler,
       timeZone: options.timeZone,
-      once: false
+      once: false,
     });
 
     ON_CHANGE_PROGRESS.succeed(`Reloaded ${chalk.bold(LOADED_JOBS.size)} jobs.`);

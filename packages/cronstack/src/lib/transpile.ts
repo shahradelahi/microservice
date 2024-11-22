@@ -5,7 +5,7 @@ import { trySafe, type SafeReturn } from 'p-safe';
 import { PACKAGE_NAME } from '@/constants';
 import { getPackageInfo } from '@/utils/get-package-info';
 
-export async function transpileFile(options: BuildOptions): Promise<SafeReturn<boolean>> {
+export async function transpileFile(options: BuildOptions): Promise {
   return trySafe(async () => {
     // deepmerge(
     //   {
@@ -40,7 +40,7 @@ export async function transpileFile(options: BuildOptions): Promise<SafeReturn<b
           plugins: [shimPlugin()],
           external: [PACKAGE_NAME, 'node:module', 'node:url', 'node:path'].concat(
             Object.keys(packageJson?.dependencies ?? {})
-          )
+          ),
         },
         options
       )
@@ -62,13 +62,13 @@ const shimPlugin = (): Plugin => ({
         js: `\
 const shimRequire = /* @__PURE__ */ (await import("node:module")).createRequire(import.meta.url);
 const __filename = /* @__PURE__ */ (await import("node:url")).fileURLToPath(import.meta.url);
-const __dirname = /* @__PURE__ */ (await import("node:path")).dirname(__filename);`
+const __dirname = /* @__PURE__ */ (await import("node:path")).dirname(__filename);`,
       };
       options.define = {
         ...options.define,
         ...{
-          require: 'shimRequire'
-        }
+          require: 'shimRequire',
+        },
       };
     }
 
@@ -76,14 +76,14 @@ const __dirname = /* @__PURE__ */ (await import("node:path")).dirname(__filename
       options.banner = {
         js: `\
 const getImportMetaUrl = () => require("node:url").pathToFileURL(__filename).toString();
-export const importMetaUrl = /* @__PURE__ */ getImportMetaUrl();`
+export const importMetaUrl = /* @__PURE__ */ getImportMetaUrl();`,
       };
       options.define = {
         ...options.define,
         ...{
-          'import.meta.url': 'importMetaUrl'
-        }
+          'import.meta.url': 'importMetaUrl',
+        },
       };
     }
-  }
+  },
 });

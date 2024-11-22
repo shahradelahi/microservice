@@ -5,7 +5,7 @@ import { getModuleType } from '@/utils/get-package-info';
 
 const require = Module.createRequire(import.meta.url);
 
-export async function getModule<T = any>(modulePath: string): Promise<T> {
+export async function getModule<T = any>(modulePath: string): Promise {
   const absolutePath = path.isAbsolute(modulePath)
     ? modulePath
     : path.resolve(process.cwd(), modulePath);

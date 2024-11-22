@@ -17,5 +17,9 @@
     }
   ],
   "importOrder": ["<THIRD_PARTY_MODULES>", "", "^@/(.*)$", "^@/tests/(.*)$", "", "^[./]"],
-  "plugins": ["@ianvs/prettier-plugin-sort-imports","prettier-plugin-sh", "prettier-plugin-tailwindcss"]
+  "plugins": [
+    "@ianvs/prettier-plugin-sort-imports",
+    "prettier-plugin-sh",
+    "prettier-plugin-tailwindcss"
+  ]
 }

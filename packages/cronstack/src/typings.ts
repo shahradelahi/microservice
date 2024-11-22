@@ -6,5 +6,5 @@ export interface Service {
   running?: boolean;
   preventOverlapping?: boolean;
   verbose?: boolean;
-  handle: () => Promise<void>;
+  handle: () => Promise;
 }

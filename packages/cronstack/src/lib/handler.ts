@@ -19,7 +19,7 @@ type TranspiledHandler = {
   name: string;
 };
 
-export async function getHandlerInstance({ filePath, name }: TranspiledHandler): Promise<Service> {
+export async function getHandlerInstance({ filePath, name }: TranspiledHandler): Promise {
   const module = await getModule(filePath);
   let handler: ((...args: unknown[]) => any) | undefined;
 
@@ -42,15 +42,15 @@ export async function getHandlerInstance({ filePath, name }: TranspiledHandler):
   return {
     name,
     handle: handler,
-    ...(module['config'] || {})
+    ...(module['config'] || {}),
   };
 }
 
-type GetHandlerOptions = Omit<TranspileServicesOptions, 'outDir'> & {
+type GetHandlerOptions = Omit & {
   cwd: string;
 };
 
-export async function getHandlers(opts: GetHandlerOptions): Promise<Service[]> {
+export async function getHandlers(opts: GetHandlerOptions): Promise {
   const { cwd, failOnError, services, ...options } = opts;
 
   const outDir = path.join(cwd, BUILD_OUTPUT_DIR);
@@ -72,7 +72,7 @@ export async function getHandlers(opts: GetHandlerOptions): Promise<Service[]> {
     outdir: outDir,
     entryPoints: entryPaths.map((handler) => handler.path),
     format,
-    ...options
+    ...options,
   });
 
   if (failOnError !== false && error) {
@@ -83,7 +83,7 @@ export async function getHandlers(opts: GetHandlerOptions): Promise<Service[]> {
 
   const modulePaths = transpiledHandlers.map((handler) => ({
     filePath: handler.path,
-    name: handler.name
+    name: handler.name,
   }));
 
   const handlers: Service[] = [];
@@ -95,7 +95,7 @@ export async function getHandlers(opts: GetHandlerOptions): Promise<Service[]> {
   return handlers;
 }
 
-type TranspileServicesOptions = Pick<BuildOptions, 'minify' | 'sourcemap'> & {
+type TranspileServicesOptions = Pick & {
   cwd: string;
   outDir: string;
   services?: string[];
@@ -116,7 +116,7 @@ export type RegisterOptions = {
 export async function registerServices(options: RegisterOptions) {
   const { services, ...opts } = options;
 
-  const jobs: Map<string, CronJob> = new Map();
+  const jobs: Map = new Map();
 
   for (const service of services) {
     if (jobs.has(service.name)) {
