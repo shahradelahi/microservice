@@ -1,4 +1,3 @@
-import path from 'node:path';
 import chalk from 'chalk';
 import { watch } from 'chokidar';
 import { Command } from 'commander';
@@ -7,7 +6,7 @@ import debounce from 'debounce';
 import ora from 'ora';
 import { z } from 'zod';
 
-import { getHandlers, registerHandlers, RegisterOptions } from '@/lib/handler';
+import { createHandlePromise, getHandlers, RegisterOptions, registerServices } from '@/lib/handler';
 import logger from '@/logger';
 import { Service } from '@/typings';
 import { handleError } from '@/utils/handle-error';
@@ -72,26 +71,28 @@ export const dev = new Command()
 
       // if options.onceNow is true, run handlers on parallel and exit
       if (options.onceNow) {
-        const promises = handlers.map((handler) => handler.handle());
+        const promises = handlers.map(createHandlePromise);
         await Promise.all(promises);
-        process.exitCode = 0;
-        return;
+        process.exit(0);
       }
 
       progress.start('Registering services.');
-      await loadHandlers({
-        handlers,
+      await runJobs({
+        services: handlers,
         timeZone: options.timeZone,
         once: isOneTime
       });
 
-      watch(path.resolve(options.cwd, 'services'), {
-        ignoreInitial: true
-      }).on('all', (eventName) => {
-        if (eventName === 'add' || eventName === 'unlink') {
-          handleOnChange(options);
-        }
-      });
+      if (!isOneTime) {
+        watch(['services/**/*.{ts,js}', 'src/services/**/*.{ts,js}'], {
+          cwd: options.cwd,
+          ignoreInitial: true
+        }).on('all', (eventName) => {
+          if (eventName === 'add' || eventName === 'unlink' || eventName === 'change') {
+            handleOnChange(options);
+          }
+        });
+      }
 
       const elapsed = new Date().getTime() - startTime;
       progress.succeed(
@@ -107,7 +108,6 @@ const ON_CHANGE_PROGRESS = ora();
 
 const handleOnChange = debounce(async (options: DevOptions) => {
   logger.log(logger.highlight('[notice]'), 'Change detected. Reloading services.');
-  logger.log('');
 
   for (const job of LOADED_JOBS.values()) {
     job.stop();
@@ -139,8 +139,8 @@ const handleOnChange = debounce(async (options: DevOptions) => {
     });
 
     ON_CHANGE_PROGRESS.start('Reloading services.');
-    await loadHandlers({
-      handlers: handler,
+    await runJobs({
+      services: handler,
       timeZone: options.timeZone,
       once: false
     });
@@ -152,11 +152,23 @@ const handleOnChange = debounce(async (options: DevOptions) => {
   }
 }, 100);
 
-async function loadHandlers(options: RegisterOptions) {
-  const newJobs = await registerHandlers(options);
+async function runJobs(options: RegisterOptions) {
+  const newJobs = await registerServices(options);
   for (const [name, job] of newJobs.entries()) {
     job.start();
     LOADED_JOBS.set(name, job);
+  }
+  if (options.once) {
+    setInterval(() => {
+      for (const [name, job] of LOADED_JOBS.entries()) {
+        if (!job.running) {
+          LOADED_JOBS.delete(name);
+        }
+      }
+      if (LOADED_JOBS.size === 0) {
+        process.exit(0);
+      }
+    }, 1000);
   }
 }
 

@@ -8,6 +8,26 @@ _cronstack_ is a versatile library for managing tasks, scheduling functions. It 
 npm install cronstack
 ```
 
+## CLI Options
+
+```text
+Usage: cronstack [options] [command]
+
+Manage your services with CronStack.
+
+Options:
+  -v, --version                  display the version number
+  -h, --help                     display help for command
+
+Commands:
+  add [options] <name>           Add a new service
+  build [options]                Build all services
+  dev [options] [services...]    Start services in development mode
+  init [options]                 Initialize your project.
+  start [options] [services...]  Start all services
+  help [command]                 display help for command
+```
+
 ### Directory Structure
 
 For the service to be recognized, ensure your service file follows the pattern:
@@ -34,22 +54,6 @@ project-root
 |   |-- +<name>.service.ts
 |   |-- <name>
 |       |-- +service.ts
-```
-
-## Initialize Project
-
-###### Command
-
-```bash
-npx cronstack init
-```
-
-## Creating a new Service
-
-###### Command
-
-```bash
-cronstack add <name> --interval <interval>
 ```
 
 ## License

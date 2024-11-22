@@ -3,7 +3,7 @@ import ora from 'ora';
 import { z } from 'zod';
 
 import { BUILD_OUTPUT_DIR, PACKAGE_NAME } from '@/constants';
-import { getHandlerInstance, registerHandlers } from '@/lib/handler';
+import { getHandlerInstance, registerServices } from '@/lib/handler';
 import { getHandlerPaths } from '@/lib/service-finder';
 import logger from '@/logger';
 import { Service } from '@/typings';
@@ -71,8 +71,8 @@ export const start = new Command()
       }
 
       // register handlers
-      const jobs = await registerHandlers({
-        handlers,
+      const jobs = await registerServices({
+        services: handlers,
         timeZone: options.timeZone,
         once: options.runOnce || options.onceNow
       });

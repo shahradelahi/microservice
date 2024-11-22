@@ -1,5 +1,4 @@
 import type { CronTime } from 'cron';
-import type { Options } from 'tsup';
 
 export interface Service {
   name: string;
@@ -9,5 +8,3 @@ export interface Service {
   verbose?: boolean;
   handle: () => Promise<void>;
 }
-
-export type TsupOptions = Options;

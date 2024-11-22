@@ -57,9 +57,9 @@ export const build = new Command()
 
       // transpile handlers
       const { error } = await transpileFile({
-        entry: rawPaths.map((handler) => handler.path),
-        outDir: buildDir,
-        format: [format],
+        entryPoints: rawPaths.map((handler) => handler.path),
+        outdir: buildDir,
+        format,
         minify: true,
         sourcemap: false
       });
