@@ -42,7 +42,7 @@ export async function getHandlerInstance({ filePath, name }: TranspiledHandler):
   return {
     name,
     handle: handler,
-    ...(module['config'] || {})
+    ...(module['config'] || {}),
   };
 }
 
@@ -72,7 +72,7 @@ export async function getHandlers(opts: GetHandlerOptions): Promise<Service[]> {
     outdir: outDir,
     entryPoints: entryPaths.map((handler) => handler.path),
     format,
-    ...options
+    ...options,
   });
 
   if (failOnError !== false && error) {
@@ -83,7 +83,7 @@ export async function getHandlers(opts: GetHandlerOptions): Promise<Service[]> {
 
   const modulePaths = transpiledHandlers.map((handler) => ({
     filePath: handler.path,
-    name: handler.name
+    name: handler.name,
   }));
 
   const handlers: Service[] = [];

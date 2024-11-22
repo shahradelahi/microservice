@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import { PACKAGE_NAME, PROJECT_NAME } from '@/constants';
 import { fsAccess } from '@/utils/fs-extra';
 import { getPackageInfo } from '@/utils/get-package-info';
+
 import { add, build, dev, init, start } from './commands';
 
 process.on('SIGINT', () => process.exit(0));

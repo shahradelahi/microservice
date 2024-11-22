@@ -31,11 +31,11 @@ export const start = new Command()
           cwd: z.string().default(process.cwd()),
           services: z.array(z.string()).default([]),
           runOnce: z.boolean().default(false),
-          onceNow: z.boolean().default(false)
+          onceNow: z.boolean().default(false),
         })
         .parse({
           services,
-          ...opts
+          ...opts,
         });
 
       const startTime = new Date().getTime();
@@ -61,7 +61,7 @@ export const start = new Command()
 
       const modulePaths = rawPaths.map((handler) => ({
         filePath: handler.path,
-        name: handler.name
+        name: handler.name,
       }));
 
       const handlers: Service[] = [];
@@ -74,7 +74,7 @@ export const start = new Command()
       const jobs = await registerServices({
         services: handlers,
         timeZone: options.timeZone,
-        once: options.runOnce || options.onceNow
+        once: options.runOnce || options.onceNow,
       });
       for (const job of jobs.values()) {
         job.start();

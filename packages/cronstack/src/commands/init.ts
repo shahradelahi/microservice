@@ -39,7 +39,7 @@ export const init = new Command()
         .object({
           nodep: z.boolean().default(false),
           packageManager: z.string().optional(),
-          cwd: z.string().default(process.cwd())
+          cwd: z.string().default(process.cwd()),
         })
         .parse(opts);
 
@@ -69,7 +69,7 @@ export const init = new Command()
 
         if (!fsAccess(path.join(cwd, 'package.json'))) {
           await execa(packageManager, [packageManager === 'npm' ? 'init' : 'init', '-y'], {
-            cwd: options.cwd
+            cwd: options.cwd,
           });
         }
 
@@ -96,7 +96,7 @@ async function installDeps(cwd: string, dev: boolean, packages: string[]) {
     packageManager,
     [packageManager === 'npm' ? 'install' : 'add', dev ? '-D' : '', ...packages],
     {
-      cwd
+      cwd,
     }
   );
 }
@@ -123,7 +123,7 @@ async function addScripts(cwd: string) {
   const scripts = {
     start: `${PACKAGE_NAME} start`,
     build: `${PACKAGE_NAME} build`,
-    dev: `${PACKAGE_NAME} dev`
+    dev: `${PACKAGE_NAME} dev`,
   };
 
   if (!packageInfo?.scripts) {
