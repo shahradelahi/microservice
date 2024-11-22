@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "chalk": "^4.1.2",
-    "chokidar": "^3.6.0",
+    "chokidar": "^4.0.0",
     "commander": "^12.1.0",
     "cron": "^3.1.7",
     "cronstrue": "^2.50.0",
