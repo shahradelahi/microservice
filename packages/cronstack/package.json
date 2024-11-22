@@ -36,8 +36,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "pnpm typecheck && eslint .",
     "lint:fix": "eslint --fix .",
-    "format:check": "prettier --check .",
-    "format": "prettier --write .",
+    "format:check": "prettier --check . --ignore-path ../../.gitignore",
+    "format": "prettier --write . --ignore-path ../../.gitignore",
     "prepublishOnly": "pnpm lint && pnpm format:check && pnpm build"
   },
   "dependencies": {
@@ -58,13 +58,13 @@
   "devDependencies": {
     "@antfu/ni": "^0.21.12",
     "@ianvs/prettier-plugin-sort-imports": "^4.3.0",
+    "@monorepo/prettier-config": "workspace:^",
     "@sindresorhus/tsconfig": "^6.0.0",
     "@types/chai": "^4.3.16",
     "@types/mocha": "^10.0.7",
     "@types/node": "^20.14.9",
     "chai": "^5.1.1",
     "mocha": "^10.5.2",
-    "prettier": "^3.3.2",
     "tsup": "^8.3.5",
     "tsx": "^4.16.0",
     "type-fest": "^4.20.1",
@@ -77,5 +77,6 @@
     "access": "public",
     "registry": "https://registry.npmjs.org",
     "provenance": true
-  }
+  },
+  "prettier": "@monorepo/prettier-config"
 }

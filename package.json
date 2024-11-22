@@ -1,18 +1,20 @@
 {
   "name": "node-cronstack",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "cronstack monorepo",
   "author": "Shahrad Elahi <shahrad@litehex.com> (https://github.com/shahradelahi)",
+  "license": "MIT",
+  "type": "module",
   "private": true,
+  "packageManager": "pnpm@8.15.8",
   "scripts": {
-    "lint": "eslint . && pnpm -r lint",
+    "lint": "pnpm -r lint",
     "lint:fix": "eslint . --fix && pnpm lint -r",
     "format:check": "pnpm -r format:check",
-    "format": "prettier --write .",
+    "format": "pnpm -r format",
     "preinstall": "npx only-allow pnpm",
     "ci:publish": "changeset publish"
   },
-  "packageManager": "pnpm@8.15.8",
   "devDependencies": {
     "@changesets/cli": "^2.27.7",
     "@typescript-eslint/eslint-plugin": "^7.15.0",
@@ -20,14 +22,9 @@
     "prettier": "^3.3.2",
     "typescript": "^5.5.3"
   },
-  "engines": {
-    "pnpm": ">=8",
-    "node": ">=18"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/shahradelahi/node-cronstack.git"
   },
-  "license": "MIT",
-  "type": "module"
+  "prettier": "@monorepo/prettier-config"
 }
