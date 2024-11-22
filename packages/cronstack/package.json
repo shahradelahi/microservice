@@ -60,7 +60,7 @@
     "@sindresorhus/tsconfig": "^6.0.0",
     "@types/chai": "^4.3.16",
     "@types/mocha": "^10.0.7",
-    "@types/node": "^20.14.9",
+    "@types/node": "^22.0.0",
     "chai": "^5.1.1",
     "mocha": "^10.5.2",
     "tsup": "^8.3.5",
