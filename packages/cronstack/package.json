@@ -1,6 +1,6 @@
 {
   "name": "cronstack",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Advanced cron job scheduler for Node.js",
   "author": "Shahrad Elahi <shahrad@litehex.com> (https://github.com/shahradelahi)",
   "license": "MIT",
