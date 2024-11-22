@@ -3,7 +3,7 @@ export function isJson(data: any): boolean {
   try {
     JSON.parse(data);
     return true;
-  } catch (e) {
+  } catch (_) {
     return false;
   }
 }
