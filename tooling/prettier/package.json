@@ -1,0 +1,20 @@
+{
+  "name": "@monorepo/prettier-config",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./prettier.json"
+  },
+  "scripts": {
+    "clean": "git clean -xdf node_modules",
+    "format:check": "prettier --check . --ignore-path ../../.gitignore",
+    "format": "prettier --write . --ignore-path ../../.gitignore",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ianvs/prettier-plugin-sort-imports": "^4.3.1",
+    "prettier": "^3.3.3"
+  },
+  "prettier": "@monorepo/prettier-config"
+}

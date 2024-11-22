@@ -5,7 +5,7 @@ import { fsAccess } from '@/utils/fs-extra';
 import {
   readDirectory,
   readDirectoryFiles,
-  separateFilesAndDirectories
+  separateFilesAndDirectories,
 } from '@/utils/read-directory-files';
 
 export function getServicesBaseDir(cwd: string = process.cwd()): string {
@@ -49,7 +49,7 @@ export async function getHandlerPaths(cwd: string, baseDir?: string): Promise<Ha
     if (isFileBasedHandler(file.basename)) {
       paths.push({
         name: readNameOfFileBasedHandler(file.basename) || file.basename,
-        path: file.path
+        path: file.path,
       });
     }
   }
@@ -66,12 +66,12 @@ export async function getHandlerPaths(cwd: string, baseDir?: string): Promise<Ha
       if (isDirectoryBasedHandler(filename)) {
         paths.push({
           name: directory.basename,
-          path: file
+          path: file,
         });
       } else if (isFileBasedHandler(file)) {
         paths.push({
           name: readNameOfFileBasedHandler(file) || filename,
-          path: file
+          path: file,
         });
       }
     }

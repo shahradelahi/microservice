@@ -16,7 +16,7 @@ export function createConfig(options: ServiceOptions): Service {
     {
       name: path.basename(path.dirname(process.cwd())),
       preventOverlapping: true,
-      running: false
+      running: false,
     },
     options
   ) as Service;
