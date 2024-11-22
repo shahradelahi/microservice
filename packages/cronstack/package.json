@@ -40,7 +40,7 @@
     "prepublishOnly": "pnpm lint && pnpm format:check && pnpm build"
   },
   "dependencies": {
-    "chalk": "^4.1.2",
+    "chalk": "^5.0.0",
     "chokidar": "^3.6.0",
     "commander": "^12.1.0",
     "cron": "^3.1.7",
