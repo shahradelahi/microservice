@@ -58,7 +58,7 @@
     "@antfu/ni": "^0.23.1",
     "@monorepo/eslint-config": "workspace:^",
     "@monorepo/prettier-config": "workspace:^",
-    "@sindresorhus/tsconfig": "^6.0.0",
+    "@sindresorhus/tsconfig": "^7.0.0",
     "@types/chai": "^5.0.1",
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.9.1",
