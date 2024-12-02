@@ -45,7 +45,7 @@ export const add = new Command()
         await promises.writeFile(servicePath, namedMicroservice(name, options.interval));
       }
 
-      logger.info(chalk.green('Success!'), `Service "${servicePath}" added successfully.`);
+      logger.log(chalk.green('Success!'), `Service "${servicePath}" added successfully.`);
       logger.log(`${name} ${options.interval} (${cronstrue.toString(options.interval)})`);
       logger.log('');
     } catch (e) {

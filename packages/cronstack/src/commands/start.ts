@@ -3,10 +3,9 @@ import ora from 'ora';
 import { z } from 'zod';
 
 import { BUILD_OUTPUT_DIR, PACKAGE_NAME } from '@/constants';
-import { getHandlerInstance, registerServices } from '@/lib/handler';
+import { getServiceInstances, registerServices } from '@/lib/handler';
 import { getHandlerPaths } from '@/lib/service-finder';
 import logger from '@/logger';
-import { Service } from '@/typings';
 import { handleError } from '@/utils/handle-error';
 
 export const start = new Command()
@@ -21,7 +20,7 @@ export const start = new Command()
     'the working directory. defaults to the current directory.',
     process.cwd()
   )
-  .action(async (services, opts) => {
+  .action(async (serviceNames, opts) => {
     logger.log('');
 
     try {
@@ -29,12 +28,12 @@ export const start = new Command()
         .object({
           timeZone: z.string().default('UTC'),
           cwd: z.string().default(process.cwd()),
-          services: z.array(z.string()).default([]),
+          serviceNames: z.array(z.string()).default([]),
           runOnce: z.boolean().default(false),
           onceNow: z.boolean().default(false),
         })
         .parse({
-          services,
+          serviceNames,
           ...opts,
         });
 
@@ -42,42 +41,32 @@ export const start = new Command()
       const progress = ora('Registering services').start();
 
       let rawPaths = await getHandlerPaths(options.cwd, BUILD_OUTPUT_DIR);
-      if (options.services.length > 0) {
-        rawPaths = rawPaths.filter((handler) => options.services.includes(handler.name));
+      if (options.serviceNames.length > 0) {
+        rawPaths = rawPaths.filter((handler) => options.serviceNames.includes(handler.name));
       }
 
       if (rawPaths.length === 0) {
-        logger.log(
-          logger.red('[error]'),
+        logger.error(
           `No services found. Make sure you run ${logger.yellow(`${PACKAGE_NAME} build`)} first.`
         );
         process.exitCode = 1;
         return;
       }
 
-      if (Array.isArray(options.services) && options.services.length > 0) {
-        rawPaths = rawPaths.filter((handler) => options.services.includes(handler.name));
+      if (Array.isArray(options.serviceNames) && options.serviceNames.length > 0) {
+        rawPaths = rawPaths.filter((handler) => options.serviceNames.includes(handler.name));
       }
 
-      const modulePaths = rawPaths.map((handler) => ({
-        filePath: handler.path,
-        name: handler.name,
-      }));
-
-      const handlers: Service[] = [];
-      for (const modulePath of modulePaths) {
-        const handler = await getHandlerInstance(modulePath);
-        handlers.push(handler);
-      }
+      const services = await getServiceInstances(rawPaths);
 
       // register handlers
       const jobs = await registerServices({
-        services: handlers,
+        services: services,
         timeZone: options.timeZone,
         once: options.runOnce || options.onceNow,
       });
-      for (const job of jobs.values()) {
-        job.start();
+      for (const { cron } of jobs.values()) {
+        cron.start();
       }
 
       const elapsed = new Date().getTime() - startTime;

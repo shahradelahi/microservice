@@ -1,26 +1,36 @@
-import path from 'node:path';
-import { CronTime } from 'cron';
 import deepmerge from 'deepmerge';
+import { serialize } from 'error-serializer';
+import sourceMapSupport from 'source-map-support';
 
-import { Service } from '@/typings';
+import type { ServiceOptions } from '@/typings';
 
-export interface ServiceOptions {
-  name?: string;
-  interval: CronTime | string;
-  preventOverlapping?: boolean;
-  verbose?: boolean;
-}
-
-export function createConfig(options: ServiceOptions): Service {
-  return deepmerge(
+export function defineService(options: ServiceOptions): ServiceOptions {
+  const service = deepmerge(
     {
-      name: path.basename(path.dirname(process.cwd())),
+      IS_CRONSTACK_SERVICE: true,
       preventOverlapping: true,
+      timeout: undefined,
       running: false,
     },
     options
-  ) as Service;
+  ) as ServiceOptions;
+  if (process.env['CRONSTACK_SERVICE_NAME'] && process.argv[2] === '-child') {
+    service.name = process.env['CRONSTACK_SERVICE_NAME'];
+    sourceMapSupport.install();
+    Promise.resolve(service.run())
+      .then(() => {
+        process.send && process.send({ success: true });
+        process.exit(0);
+      })
+      .catch((err) => {
+        process.send && process.send({ success: false, error: serialize(err) });
+        process.exit(1);
+      });
+  }
+  return service;
 }
+
+export { defineConfig, type CronstackConfig } from '@/lib/config';
 
 // -- Types ---------------------------
 

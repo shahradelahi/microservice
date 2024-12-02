@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env node --no-deprecation
 import { Command } from 'commander';
 import dotenv from 'dotenv';
 

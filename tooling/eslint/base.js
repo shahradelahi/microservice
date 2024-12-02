@@ -1,12 +1,9 @@
-import eslint from '@eslint/js';
-import tseslint from 'typescript-eslint';
+import { defineConfig } from '@shahrad/eslint-config';
 
-export default tseslint.config(
+export default defineConfig(
   {
     ignores: ['dist/**'],
   },
-  eslint.configs.recommended,
-  tseslint.configs.recommended,
   {
     rules: {
       'no-console': 'error',

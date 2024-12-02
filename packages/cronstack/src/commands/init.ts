@@ -60,7 +60,7 @@ export const init = new Command()
       // install dependencies
       if (options.nodep) {
         logger.log('');
-        logger.info(chalk.yellow('Warning!'), 'Dependencies not installed.');
+        logger.log(chalk.yellow('Warning!'), 'Dependencies not installed.');
         logger.log('');
       } else {
         const dependenciesSpinner = ora(`Installing dependencies...`)?.start();
@@ -82,7 +82,7 @@ export const init = new Command()
         logger.log('');
       }
 
-      logger.info(chalk.green('Success!'), 'Project initialized.');
+      logger.log(chalk.green('Success!'), 'Project initialized.');
       logger.log('');
     } catch (e) {
       handleError(e);

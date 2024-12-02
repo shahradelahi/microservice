@@ -3,6 +3,8 @@ import chalk from 'chalk';
 import logger from '@/logger';
 
 export function handleError(error: unknown) {
+  logger.log();
+
   if (typeof error === 'string') {
     logger.error(error);
     process.exit(1);
@@ -10,7 +12,7 @@ export function handleError(error: unknown) {
 
   if (error instanceof Error) {
     logger.error(error.message);
-    logger.log(error.stack);
+    sendError(error);
     process.exit(1);
   }
 

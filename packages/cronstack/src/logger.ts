@@ -1,19 +1,19 @@
 import chalk from 'chalk';
 
 export function error(this: any, ...args: unknown[]) {
-  log(chalk.red(...args));
+  log(chalk.red('error'), '-', ...args);
 }
 
 export function warn(...args: unknown[]) {
-  log(chalk.yellow(...args));
+  log(chalk.yellow('warn'), '-', ...args);
 }
 
 export function info(...args: unknown[]) {
-  log(chalk.cyan(...args));
+  log(chalk.cyan('info'), '-', ...args);
 }
 
 export function success(...args: unknown[]) {
-  log(chalk.green(...args));
+  log(chalk.green('success'), '-', ...args);
 }
 
 export function highlight(...args: unknown[]) {

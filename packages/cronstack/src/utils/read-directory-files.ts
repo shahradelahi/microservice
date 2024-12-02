@@ -1,6 +1,6 @@
 import { promises } from 'node:fs';
-import path from 'node:path';
-import { trySafe, type SafeReturn } from 'p-safe';
+import { basename, resolve } from 'node:path';
+import { trySafe } from 'p-safe';
 
 export type Content = {
   type: 'file' | 'directory';
@@ -8,37 +8,48 @@ export type Content = {
   path: string;
 };
 
-export async function readDirectory(directoryPath: string): Promise<SafeReturn<Content[]>> {
-  return trySafe(async (resolve) => {
-    const fileNames = await promises.readdir(directoryPath); // returns a JS array of just short/local file-names, not paths.
-    const filePaths = fileNames.map((fn) => path.join(directoryPath, fn));
+export async function readDirectory(
+  path: string,
+  { recursive = false }: { recursive?: boolean } = {}
+) {
+  return trySafe<Content[]>(async () => {
+    const fileNames = await promises.readdir(path); // returns a JS array of just short/local file-names, not paths.
+    const filePaths = fileNames.map((fn) => resolve(path, fn));
 
     const contents: Content[] = [];
     for (const filePath of filePaths) {
       const stats = await promises.stat(filePath);
       if (stats.isDirectory()) {
-        contents.push({ type: 'directory', basename: path.basename(filePath), path: filePath });
+        contents.push({ type: 'directory', basename: basename(filePath), path: filePath });
+
+        if (recursive) {
+          const directoryContents = await readDirectory(filePath, { recursive });
+          if (directoryContents.error) {
+            throw directoryContents.error;
+          }
+          contents.push(...directoryContents.data);
+        }
       } else if (stats.isFile()) {
-        contents.push({ type: 'file', basename: path.basename(filePath), path: filePath });
+        contents.push({ type: 'file', basename: basename(filePath), path: filePath });
       }
     }
 
-    return resolve(contents);
+    return { data: contents };
   });
 }
 
-export async function readDirectoryFiles(directoryPath: string): Promise<SafeReturn<string[]>> {
-  return trySafe(async (resolve, reject) => {
+export async function readDirectoryFiles(directoryPath: string) {
+  return trySafe<string[]>(async () => {
     const contents = await readDirectory(directoryPath);
     if (contents.error) {
-      return reject(contents.error);
+      return { error: contents.error };
     }
 
     const files = (contents.data || [])
       .filter((content) => content.type === 'file')
       .map((content) => content.path);
 
-    return resolve(files);
+    return { data: files };
   });
 }
 

@@ -9,24 +9,18 @@
   "type": "module",
   "main": "dist/lib.cjs",
   "module": "dist/lib.js",
-  "types": "dist/lib.d.cts",
+  "types": "dist",
   "bin": {
     "cronstack": "dist/cli.js"
   },
   "exports": {
     ".": {
-      "import": {
-        "types": "./dist/lib.d.ts",
-        "default": "./dist/lib.js"
-      },
-      "require": {
-        "types": "./dist/lib.d.cts",
-        "default": "./dist/lib.cjs"
-      }
+      "import": "./dist/lib.js",
+      "default": "./dist/lib.cjs"
     }
   },
   "files": [
-    "dist/**"
+    "dist"
   ],
   "scripts": {
     "dev": "tsup --watch",
@@ -40,18 +34,23 @@
     "prepublishOnly": "pnpm lint && pnpm format:check && pnpm build"
   },
   "dependencies": {
+    "@se-oss/rand": "^1.0.0",
     "chalk": "^5.3.0",
     "chokidar": "^4.0.1",
     "commander": "^12.1.0",
     "cron": "^3.2.1",
     "cronstrue": "^2.52.0",
-    "debounce": "^2.2.0",
     "deepmerge": "^4.3.1",
     "dotenv": "^16.4.5",
+    "error-serializer": "^8.0.0",
     "esbuild": "^0.24.0",
     "execa": "^9.5.1",
+    "fast-glob": "^3.3.2",
+    "lodash": "^4.17.21",
+    "micromatch": "^4.0.8",
     "ora": "^8.1.1",
     "p-safe": "^1.0.0",
+    "source-map-support": "^0.5.21",
     "zod": "^3.23.8"
   },
   "devDependencies": {
@@ -60,8 +59,12 @@
     "@monorepo/prettier-config": "workspace:^",
     "@sindresorhus/tsconfig": "^6.0.0",
     "@types/chai": "^5.0.1",
+    "@types/lodash": "^4.17.13",
+    "@types/micromatch": "^4.0.9",
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.9.1",
+    "@types/source-map-support": "^0.5.10",
+    "bundle-require": "^5.0.0",
     "chai": "^5.1.2",
     "mocha": "^10.8.2",
     "tsup": "^8.3.5",

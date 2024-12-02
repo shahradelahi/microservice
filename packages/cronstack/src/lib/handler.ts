@@ -1,56 +1,34 @@
 import { promises } from 'node:fs';
 import path from 'node:path';
 import chalk from 'chalk';
-import { CronJob, CronTime } from 'cron';
 import type { BuildOptions } from 'esbuild';
 
 import { BUILD_OUTPUT_DIR } from '@/constants';
+import { Service } from '@/lib/service';
 import { getHandlerPaths } from '@/lib/service-finder';
-import { transpileFile } from '@/lib/transpile';
+import { transpile } from '@/lib/transpile';
 import logger from '@/logger';
-import type { Service } from '@/typings';
 import { fsAccess } from '@/utils/fs-extra';
-import { getModule } from '@/utils/get-module';
 import { getModuleType } from '@/utils/get-package-info';
-import { sendError } from '@/utils/handle-error';
 
-type TranspiledHandler = {
-  filePath: string;
-  name: string;
-};
-
-export async function getHandlerInstance({ filePath, name }: TranspiledHandler): Promise<Service> {
-  const module = await getModule(filePath);
-  let handler: ((...args: unknown[]) => any) | undefined;
-
-  if ('default' in module) {
-    handler = module['default'];
-  } else if ('handler' in module) {
-    handler = module['handler'];
-  }
-
-  if (!handler) {
-    throw new Error(
-      `Handler not found in ${filePath}. Handlers must be exported as default or "handler".`
-    );
-  }
-
-  if (typeof handler !== 'function') {
-    throw new Error(`Handler ${filePath} is not a function`);
-  }
-
-  return {
-    name,
-    handle: handler,
-    ...(module['config'] || {}),
-  };
+interface GetHandlerOptions extends Partial<BuildOptions> {
+  cwd: string;
+  services?: string[];
+  failOnError?: boolean;
 }
 
-type GetHandlerOptions = Omit<TranspileServicesOptions, 'outDir'> & {
-  cwd: string;
-};
+export async function getServiceInstances(handlers: HandlerPath[]): Promise<Service[]> {
+  const services: Service[] = [];
 
-export async function getHandlers(opts: GetHandlerOptions): Promise<Service[]> {
+  for (const { name, path } of handlers) {
+    const service = await Service.loadFrom(name, path);
+    services.push(service);
+  }
+
+  return services;
+}
+
+export async function getServices(opts: GetHandlerOptions): Promise<Service[]> {
   const { cwd, failOnError, services, ...options } = opts;
 
   const outDir = path.join(cwd, BUILD_OUTPUT_DIR);
@@ -67,8 +45,12 @@ export async function getHandlers(opts: GetHandlerOptions): Promise<Service[]> {
 
   entryPaths = entryPaths.filter((handler) => fsAccess(handler.path)); // filter out non-existent files
 
+  if (entryPaths.length === 0) {
+    throw new Error(`No services found in "${cwd}" directory.`);
+  }
+
   // transpile handlers
-  const { error } = await transpileFile({
+  const { error } = await transpile({
     outdir: outDir,
     entryPoints: entryPaths.map((handler) => handler.path),
     format,
@@ -79,28 +61,11 @@ export async function getHandlers(opts: GetHandlerOptions): Promise<Service[]> {
     throw error;
   }
 
-  const transpiledHandlers = await getHandlerPaths(outDir, '');
+  // Reads from output directory
+  const handlers = await getHandlerPaths(outDir, false);
 
-  const modulePaths = transpiledHandlers.map((handler) => ({
-    filePath: handler.path,
-    name: handler.name,
-  }));
-
-  const handlers: Service[] = [];
-  for (const modulePath of modulePaths) {
-    const handler = await getHandlerInstance(modulePath);
-    handlers.push(handler);
-  }
-
-  return handlers;
+  return await getServiceInstances(handlers);
 }
-
-type TranspileServicesOptions = Pick<BuildOptions, 'minify' | 'sourcemap'> & {
-  cwd: string;
-  outDir: string;
-  services?: string[];
-  failOnError?: boolean;
-};
 
 export type HandlerPath = {
   path: string;
@@ -116,85 +81,27 @@ export type RegisterOptions = {
 export async function registerServices(options: RegisterOptions) {
   const { services, ...opts } = options;
 
-  const jobs: Map<string, CronJob> = new Map();
+  const jobs: Map<string, Service> = new Map();
 
   for (const service of services) {
     if (jobs.has(service.name)) {
-      logger.log(
-        logger.yellow('[warn]'),
+      logger.error(
         `Job "${chalk.bold(
           service.name
-        )}" not registered because another job with the same name already exists.`
+        )}" can not be registered because its name is already in use.`
       );
-      continue;
+      process.exit(1);
     }
 
-    const handleTick = async () => {
-      if (service.preventOverlapping && service.running) {
-        if (service.verbose) {
-          logger.log(
-            logger.yellow('[warn]'),
-            `Job "${chalk.bold(service.name)}" skipped because it is already running.`
-          );
-        }
-        return;
-      }
-
-      service.running = true;
-
-      await Promise.resolve(createHandlePromise(service));
-
-      if (service.preventOverlapping) {
-        service.running = false;
-      }
-    };
-
-    const job: CronJob = new CronJob('* * * * *', handleTick, null, false, opts.timeZone);
-    job.addCallback(() => {
+    service.cron.addCallback(() => {
       // if opts.once is true, stop the job
       if (opts.once) {
-        job.stop();
+        service.stop();
       }
     });
 
-    const { interval } = service;
-    if (interval instanceof CronTime) {
-      job.setTime(interval);
-    } else if (typeof (interval as any) === 'string') {
-      job.setTime(new CronTime(interval));
-    } else {
-      throw new Error(
-        `Invalid interval type "${typeof service.interval}" for job "${service.name}"`
-      );
-    }
-
-    jobs.set(service.name, job);
+    jobs.set(service.name, service);
   }
 
   return jobs;
-}
-
-export function createHandlePromise(handler: Service) {
-  return new Promise<void>((resolve) => {
-    if (handler.verbose) {
-      logger.log(chalk.cyan('[info]'), chalk.gray(`[${handler.name}]`), `Job has started.`);
-    }
-    handler
-      .handle()
-      .then(() => {
-        if (handler.verbose) {
-          logger.log(
-            chalk.green('[success]'),
-            chalk.gray(`[${handler.name}]`),
-            `Job has completed.`
-          );
-        }
-        resolve();
-      })
-      .catch((err) => {
-        logger.log(chalk.red('[error]'), chalk.gray(`[${handler.name}]`), `Job has crashed.`);
-        sendError(err);
-      })
-      .finally(resolve);
-  });
 }

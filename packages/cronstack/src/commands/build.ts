@@ -7,7 +7,7 @@ import { z } from 'zod';
 
 import { BUILD_OUTPUT_DIR } from '@/constants';
 import { getHandlerPaths } from '@/lib/service-finder';
-import { transpileFile } from '@/lib/transpile';
+import { transpile } from '@/lib/transpile';
 import logger from '@/logger';
 import { fsAccess } from '@/utils/fs-extra';
 import { getModuleType } from '@/utils/get-package-info';
@@ -47,16 +47,13 @@ export const build = new Command()
       const rawPaths = await getHandlerPaths(options.cwd);
 
       if (rawPaths.length === 0) {
-        logger.log(
-          logger.red('[error]'),
-          `No services found in ${chalk.bold(options.cwd)} directory.`
-        );
+        logger.error(`No services found in ${chalk.bold(options.cwd)} directory.`);
         process.exitCode = 1;
         return;
       }
 
       // transpile handlers
-      const { error } = await transpileFile({
+      const { error } = await transpile({
         entryPoints: rawPaths.map((handler) => handler.path),
         outdir: buildDir,
         format,

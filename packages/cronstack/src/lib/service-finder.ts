@@ -28,16 +28,18 @@ export function getServicesBaseDir(cwd: string = process.cwd()): string {
  * @param cwd
  * @param baseDir The directory where the services are located. Defaults to `services`.
  */
-export async function getHandlerPaths(cwd: string, baseDir?: string): Promise<HandlerPath[]> {
+export async function getHandlerPaths(
+  cwd: string,
+  baseDir?: string | false
+): Promise<HandlerPath[]> {
   if (baseDir === undefined) {
     baseDir = getServicesBaseDir();
   }
 
-  const handlerPath = path.join(cwd, baseDir);
-
+  const handlerPath = baseDir ? path.resolve(cwd, baseDir) : cwd;
   const { data: contents, error } = await readDirectory(handlerPath);
-  if (!contents || error) {
-    throw new Error(`Failed to read directory ${handlerPath}`);
+  if (error) {
+    throw error;
   }
 
   const { files, directories } = separateFilesAndDirectories(contents || []);
@@ -56,8 +58,8 @@ export async function getHandlerPaths(cwd: string, baseDir?: string): Promise<Ha
 
   for (const directory of directories) {
     const { data: files, error } = await readDirectoryFiles(directory.path);
-    if (!files || error) {
-      throw new Error(`Failed to read directory ${directory.path}`);
+    if (error) {
+      throw error;
     }
 
     // DIRECTORY_BASED
@@ -77,7 +79,7 @@ export async function getHandlerPaths(cwd: string, baseDir?: string): Promise<Ha
     }
 
     // loop through subdirectories
-    const subdirectories = await getHandlerPaths(directory.path, '');
+    const subdirectories = await getHandlerPaths(directory.path, false);
     paths.push(...subdirectories);
   }
 
@@ -96,7 +98,7 @@ function isDirectoryBasedHandler(handlerPath: string) {
   return DIRECTORY_BASED_HANDLER_REGEX.test(path.basename(handlerPath));
 }
 
-function readNameOfFileBasedHandler(handlerPath: string) {
+export function readNameOfFileBasedHandler(handlerPath: string) {
   const match = handlerPath.match(FILE_BASED_HANDLER_REGEX);
   if (!match || match[1] === undefined) {
     return;
