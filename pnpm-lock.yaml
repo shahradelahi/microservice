@@ -76,8 +76,8 @@ importers:
         version: 3.23.8
     devDependencies:
       '@antfu/ni':
-        specifier: ^0.23.1
-        version: 0.23.1
+        specifier: ^23.0.0
+        version: 23.2.0
       '@monorepo/eslint-config':
         specifier: workspace:^
         version: link:../../tooling/eslint
@@ -150,8 +150,8 @@ importers:
 
 packages:
 
-  '@antfu/ni@0.23.1':
-    resolution: {integrity: sha512-VFAvMTJhjP6L7CuBKT5FioDCSpdmZxJ4POKTJOrFNicI2CK6mlaRwVEBGWLGm2V6BtQgdbBn9X68piHSbw5wQQ==}
+  '@antfu/ni@23.2.0':
+    resolution: {integrity: sha512-PsqWG9QcgTQ0eyEMxYaaJMxoCaCmy8InPkToC7MQuOHHUPQknMZtCrnzZSZDXk+X9Z93eGFh+v0mE2X6FWNtuw==}
     hasBin: true
 
   '@babel/code-frame@7.26.2':
@@ -2019,7 +2019,7 @@ packages:
 
 snapshots:
 
-  '@antfu/ni@0.23.1': {}
+  '@antfu/ni@23.2.0': {}
 
   '@babel/code-frame@7.26.2':
     dependencies:
