@@ -54,7 +54,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@antfu/ni": "^0.23.1",
+    "@antfu/ni": "^23.0.0",
     "@monorepo/eslint-config": "workspace:^",
     "@monorepo/prettier-config": "workspace:^",
     "@sindresorhus/tsconfig": "^6.0.0",
